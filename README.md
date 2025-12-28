@@ -2,6 +2,8 @@
 
 Modeled a 12.47-kV radial distribution feeder serving approximately 3,750 residential customers with 15 MW peak load in MATLAB/MATPOWER. Identified voltage violations (0.75 pu at end-of-line) and designed mitigation using voltage regulators and capacitor banks, improving voltage profile from 0.75 pu to 0.86 pu and reducing system losses by 27%.
 
+see chart.png in the root folder.
+
 ## Problem Statement
 
 A 6-bus radial distribution feeder experiences severe voltage drop under peak load conditions. The feeder serves approximately 3,750 residential customers across six distribution points (buses) along a 4-mile corridor. Under peak demand, voltages drop from 1.0 pu at the substation to 0.75 pu at the furthest bus, well below the ANSI C84.1 minimum limit of 0.95 pu. Customers at buses 3-6 experience unacceptable voltage levels that would cause equipment malfunction and reduced power quality.
