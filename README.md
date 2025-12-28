@@ -27,6 +27,67 @@ A 6-bus radial distribution feeder experiences severe voltage drop under peak lo
 - Voltage regulator: Installed on line between Bus 2-3, tap ratio 0.95 (approximately 5% voltage boost)
 - Capacitor bank: 2.0 MVAR at Bus 5 for reactive power support
 
+## Understanding Per-Unit Values in MATPOWER
+
+MATPOWER uses a **mixed per-unit system** that can be confusing. Here's what's actually in per-unit versus actual values:
+
+### What baseMVA Does (and Doesn't Do)
+
+**baseMVA = 10 MVA is used for:**
+- Calculating base impedance: `Z_base = (baseKV)² / baseMVA = (12.47)² / 10 = 15.55 Ω`
+- Converting line impedances to per-unit: `r_pu = R_actual / Z_base`
+- Internal MATPOWER solver calculations
+
+**baseMVA is NOT used for:**
+- Converting loads (Pd/Qd are **already in MW/MVAR**)
+- Converting generation (Pg/Qg are **already in MW/MVAR**)
+- Calculating total load (just sum the Pd values directly)
+
+### Per-Unit vs Actual Values
+
+| Quantity | Units in Code | Per-Unit? | How to Get Actual Value |
+|----------|---------------|-----------|-------------------------|
+| **Vm** (voltage) | per-unit | YES | `V_actual = Vm × baseKV` <br> Example: 0.9525 pu × 12.47 kV = 11.88 kV |
+| **Pd, Qd** (load) | MW, MVAR | NO | **Already actual values** <br> 2.0 = 2.0 MW (not per-unit) |
+| **Pg, Qg** (generation) | MW, MVAR | NO | **Already actual values** <br> 17.5 = 17.5 MW (not per-unit) |
+| **r, x** (impedance) | per-unit | YES | `Z_actual = Z_pu × Z_base` <br> Example: 0.015 pu × 15.55 Ω = 0.233 Ω |
+| **baseMVA** | MVA | NO | Reference value only |
+
+### Example: Line Impedance Calculation
+
+For a 0.5-mile line segment with R = 0.3 Ω/mile:
+
+1. **Actual resistance:** `R_actual = 0.3 Ω/mile × 0.5 miles = 0.15 Ω`
+2. **Base impedance:** `Z_base = (12.47 kV)² / 10 MVA = 15.55 Ω`
+3. **Per-unit value:** `r = 0.15 Ω / 15.55 Ω = 0.0096 ≈ 0.015 pu` (rounded)
+
+This 0.015 pu value is what goes in the MATPOWER case file.
+
+### Why This Matters
+
+**Common mistake:** Thinking that `Pd = 2.0` means "2.0 per-unit on a 10 MVA base" and calculating actual load as `2.0 × 10 = 20 MW`. This is **wrong**.
+
+**Correct interpretation:** Per MATPOWER documentation, `Pd = 2.0` means **2.0 MW directly**. No conversion needed.
+
+### Official Documentation Reference
+
+From MATPOWER caseformat documentation:
+- Bus Data Column 3: "Pd, real power demand (MW)"
+- Bus Data Column 4: "Qd, reactive power demand (MVAr)"
+- Generator Data Column 2: "Pg, real power output (MW)"
+- Generator Data Column 3: "Qg, reactive power output (MVAr)"
+
+Note that these are specified as MW/MVAr, not per-unit. The documentation explicitly states "MW" and "MVAr" in the column definitions.
+
+### What Gets Converted
+
+When MATPOWER runs:
+1. Takes your MW/MVAR loads (actual values)
+2. Internally converts to per-unit using baseMVA for calculations
+3. Returns results back in MW/MVAR (actual values)
+
+You work in actual MW/MVAR. MATPOWER handles the per-unit conversion internally.
+
 ## Results
 
 **Voltage Improvements:**
