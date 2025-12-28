@@ -1,60 +1,69 @@
 # Distribution Feeder Voltage Regulation Study
 
-Modeled a 12.47-kV radial distribution feeder with 150 MW load in MATLAB/MATPOWER. Identified voltage violations (0.75 pu at end-of-line) and designed mitigation using voltage regulators and capacitor banks, improving voltage profile from 0.75 pu to 0.86 pu and reducing system losses by 27%.
+Modeled a 12.47-kV radial distribution feeder serving approximately 3,750 residential customers with 15 MW peak load in MATLAB/MATPOWER. Identified voltage violations (0.75 pu at end-of-line) and designed mitigation using voltage regulators and capacitor banks, improving voltage profile from 0.75 pu to 0.86 pu and reducing system losses by 27%.
 
 ## Problem Statement
 
-A 6-bus radial distribution feeder experiences severe voltage drop under peak load conditions. The base case shows voltages dropping from 1.0 pu at the substation to 0.75 pu at the furthest bus, well below the ANSI C84.1 minimum limit of 0.95 pu. Customers at buses 3-6 experience unacceptable voltage levels that would cause equipment malfunction and reduced power quality.
+A 6-bus radial distribution feeder experiences severe voltage drop under peak load conditions. The feeder serves approximately 3,750 residential customers across six distribution points (buses) along a 4-mile corridor. Under peak demand, voltages drop from 1.0 pu at the substation to 0.75 pu at the furthest bus, well below the ANSI C84.1 minimum limit of 0.95 pu. Customers at buses 3-6 experience unacceptable voltage levels that would cause equipment malfunction and reduced power quality.
 
 ## System Design
 
 **Feeder Specifications:**
 - Voltage: 12.47 kV line-to-line, balanced 3-phase
-- Configuration: Radial topology, 6 buses
+- Configuration: Radial topology, 6 distribution buses
 - Total length: 4 miles
-- Total load: 150 MW, 75 MVAR
+- Total peak load: 15 MW, 7.5 MVAR (approximately 3,750 residential customers)
 - Line parameters: R = 0.3 Ω/mile, X = 0.4 Ω/mile
-- Base MVA: 10 MVA
+- Base MVA: 10 MVA (used for per-unit normalization)
+
+**Load Distribution:**
+- Bus 2: 2.0 MW (approximately 500 homes)
+- Bus 3: 3.0 MW (approximately 750 homes)
+- Bus 4: 2.5 MW (approximately 625 homes)
+- Bus 5: 3.5 MW (approximately 875 homes)
+- Bus 6: 4.0 MW (approximately 1,000 homes)
 
 **Regulation Devices:**
-- Voltage regulator: Installed on line between Bus 2-3, tap ratio 0.95 (5% boost)
-- Capacitor bank: 2.0 MVAR at Bus 5
+- Voltage regulator: Installed on line between Bus 2-3, tap ratio 0.95 (approximately 5% voltage boost)
+- Capacitor bank: 2.0 MVAR at Bus 5 for reactive power support
 
 ## Results
 
 **Voltage Improvements:**
 
-| Bus | Base Case | With Regulator | Reg + Capacitor | Status |
-|-----|-----------|----------------|-----------------|--------|
-| 1   | 1.0000 pu | 1.0000 pu      | 1.0000 pu       | OK     |
-| 2   | 0.9525 pu | 0.9537 pu      | 0.9593 pu       | OK     |
-| 3   | 0.8855 pu | 0.9421 pu      | 0.9567 pu       | Violation |
-| 4   | 0.8198 pu | 0.8817 pu      | 0.9072 pu       | Violation |
-| 5   | 0.7752 pu | 0.8407 pu      | 0.8760 pu       | Violation |
-| 6   | 0.7539 pu | 0.8212 pu      | 0.8573 pu       | Violation |
+| Bus | Base Case | With Regulator | Reg + Capacitor | Customer Count | Status |
+|-----|-----------|----------------|-----------------|----------------|--------|
+| 1   | 1.0000 pu | 1.0000 pu      | 1.0000 pu       | Substation     | OK     |
+| 2   | 0.9525 pu | 0.9537 pu      | 0.9593 pu       | ~500 homes     | OK     |
+| 3   | 0.8855 pu | 0.9421 pu      | 0.9567 pu       | ~750 homes     | Violation |
+| 4   | 0.8198 pu | 0.8817 pu      | 0.9072 pu       | ~625 homes     | Violation |
+| 5   | 0.7752 pu | 0.8407 pu      | 0.8760 pu       | ~875 homes     | Violation |
+| 6   | 0.7539 pu | 0.8212 pu      | 0.8573 pu       | ~1,000 homes   | Violation |
 
 **System Losses:**
-- Base case: 2.45 MW (1.6% of total load)
-- Regulator only: 2.16 MW (1.4% of load, 12.1% reduction)
-- Regulator + capacitor: 1.79 MW (1.2% of load, 27.0% reduction)
+- Base case: 2.45 MW (16.4% of total load)
+- Regulator only: 2.16 MW (14.4% of load, 12.1% reduction)
+- Regulator + capacitor: 1.79 MW (11.9% of load, 27.0% reduction)
 
 ## Analysis
 
-The voltage regulator provides significant voltage improvement by boosting downstream voltages approximately 6-7% at buses 3-6. The capacitor bank provides additional reactive power support locally at Bus 5, which reduces reactive current flow through all upstream lines. This reduced current flow decreases voltage drop across the entire feeder and significantly reduces I²R losses.
+The voltage regulator boosts downstream voltages by 6-7% at buses 3-6. The capacitor bank at Bus 5 supplies reactive power locally, reducing reactive current through all upstream lines. Lower current means less voltage drop and lower I²R losses throughout the feeder.
 
-The capacitor's impact on loss reduction (27% total) exceeds its voltage improvement contribution, demonstrating that reactive power compensation provides system-wide benefits beyond the immediate connection point. The reduction in reactive current propagates upstream, improving voltage profile and reducing losses from Bus 1 through Bus 5.
+Base case losses are 16.4% because 15 MW flows through 4 miles of conductor with 0.3 Ω/mile resistance. Upstream segments carry the most current (serving all downstream loads), so they contribute the most loss. Utilities typically use larger conductors (~0.15 Ω/mile), higher voltages (34.5 kV), or multiple feeders to reduce losses below 5%.
 
-While the combined solution brings buses 3-6 closer to acceptable limits, additional regulation equipment would be required to fully comply with ANSI C84.1 standards. The analysis demonstrates that voltage regulators and capacitor banks serve complementary functions in distribution system planning.
+The capacitor reduces losses by 27% total. This happens because it cuts reactive current flow from the substation through every upstream line segment. The loss reduction benefit exceeds the direct voltage improvement.
+
+Buses 5-6 still violate voltage limits even with both devices. Additional equipment (second regulator or larger capacitor) would be needed for full ANSI compliance.
 
 ## Files
 
-**feeder_base_case.m** - Defines the base feeder model with no regulation devices. Models 6 buses with loads totaling 150 MW and line impedances based on 0.3 Ω/mile resistance. This represents the problem scenario with voltage violations at buses 3-6.
+**feeder_base_case.m** - Base feeder model with no regulation devices. Per MATPOWER standard, Pd and Qd are in MW and MVAR (not per-unit). Line impedances are per-unit on the 10 MVA base. Shows voltage violations at buses 3-6.
 
-**feeder_with_regulator.m** - Adds a voltage regulator on the line between Bus 2-3. The regulator is modeled as a transformer with tap ratio 0.95, providing approximately 5% voltage boost to downstream buses.
+**feeder_with_regulator.m** - Adds voltage regulator on line 2-3. Tap ratio 0.95 provides ~5% voltage boost downstream. Per MATPOWER, tap ratio < 1.0 boosts voltage on the "to" side.
 
-**feeder_with_regulator_and_cap.m** - Adds both voltage regulator and capacitor bank. The capacitor at Bus 5 provides 2.0 MVAR of reactive power, modeled as negative reactive load (Qd = -0.25 pu, accounting for 1.75 MVAR load demand and 2.0 MVAR capacitor injection).
+**feeder_with_regulator_and_cap.m** - Adds regulator and capacitor. Capacitor at Bus 5 provides 2.0 MVAR, modeled as Qd = -0.25 MVAR (1.75 MVAR load minus 2.0 MVAR capacitor = net injection). MATPOWER uses negative Qd for reactive injection.
 
-**compare_all_cases.m** - Runs power flow analysis for all three scenarios, extracts voltage profiles and system losses, generates comparison plots, and displays results. Calculates real power losses using the correct formula: loss = sum(PF + PT) where PF is power at the "from" end and PT is power at the "to" end of each branch.
+**compare_all_cases.m** - Runs power flow for all three scenarios and generates comparison plots. Loss calculation uses MATPOWER formula: loss = sum(PF + PT) where PF = power at "from" end (column 14), PT = power at "to" end (column 16). Total load = sum of Pd values in MW (no baseMVA multiplication needed per MATPOWER standard).
 
 ## Tools
 
@@ -65,16 +74,22 @@ While the combined solution brings buses 3-6 closer to acceptable limits, additi
 
 ## How to Run
 
-1. Install MATPOWER in MATLAB (run `install_matpower` after downloading)
+1. Install MATPOWER in MATLAB (run `install_matpower` after downloading from matpower.org)
 2. Navigate to project directory
-3. Run `compare_all_cases` in the MATLAB command window
+3. Run `compare_all_cases` in MATLAB command window
 4. Voltage comparison plot displays automatically
-5. Results print to console showing voltage profiles and loss analysis
+5. Results print to console
 
 ## Key Findings
 
-The voltage regulator provides the primary voltage boost, improving Bus 6 voltage from 0.754 pu to 0.821 pu (8.9% improvement). Adding the capacitor bank provides additional improvement to 0.857 pu (13.7% total improvement from base case).
+Voltage regulator improves Bus 6 from 0.754 pu to 0.821 pu (8.9% improvement). Adding the capacitor improves Bus 6 to 0.857 pu (13.7% total improvement).
 
-The capacitor bank's primary benefit is loss reduction rather than voltage support. By providing reactive power locally at Bus 5, it reduces reactive current flow through lines 1-2, 2-3, 3-4, and 4-5. This current reduction yields 27% total loss reduction compared to base case, with the capacitor alone contributing approximately 15% loss reduction beyond the regulator.
+The capacitor's main benefit is loss reduction, not voltage improvement. It cuts reactive current flow through lines 1-2, 2-3, 3-4, and 4-5, yielding 27% total loss reduction. The capacitor alone contributes ~15% loss reduction beyond what the regulator provides.
 
-The heavily loaded feeder (150 MW over 4 miles) demonstrates realistic distribution planning challenges. In practice, utilities would supplement these devices with larger conductors, higher operating voltages, or load distribution across multiple feeders to fully meet voltage standards.
+Base case losses of 16.4% are high but realistic for this scenario: 15 MW over 4 miles with 0.3 Ω/mile conductors. Utilities would normally use larger wire, higher voltage, or split the load across multiple feeders to get losses under 5%.
+
+## References
+
+- MATPOWER Documentation: https://matpower.org/docs/
+- MATPOWER Case Format (Pd/Qd in MW/MVAR): https://matpower.org/docs/ref/matpower/caseformat.html
+- ANSI C84.1 Voltage Standards
