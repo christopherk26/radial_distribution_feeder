@@ -10,6 +10,12 @@ A 6-bus radial distribution feeder experiences severe voltage drop under peak lo
 
 ## System Design
 
+the following is an image that visualizes our scenario, not with the right amount of buses, though. 
+
+<img width="558" height="406" alt="visual_image" src="https://github.com/user-attachments/assets/b09aceea-a23a-4b92-af52-61d87fc28fcc" />
+
+
+
 **Feeder Specifications:**
 - Voltage: 12.47 kV line-to-line, balanced 3-phase
 - Configuration: Radial topology, 6 distribution buses
@@ -102,6 +108,9 @@ You work in actual MW/MVAR. MATPOWER handles the per-unit conversion internally.
 | 4   | 0.8198 pu | 0.8817 pu      | 0.9072 pu       | ~625 homes     | Violation |
 | 5   | 0.7752 pu | 0.8407 pu      | 0.8760 pu       | ~875 homes     | Violation |
 | 6   | 0.7539 pu | 0.8212 pu      | 0.8573 pu       | ~1,000 homes   | Violation |
+
+<img width="980" height="652" alt="chart" src="https://github.com/user-attachments/assets/980078d8-756b-458b-bc64-c0f4f07cd575" />
+
 
 **System Losses:**
 - Base case: 2.45 MW (16.4% of total load)
